@@ -1,0 +1,8 @@
+<div class="calendar-container">
+  <p>Selected date: {{selected()}}</p>
+  <div class="inline-calendar">
+    <mat-calendar [(selected)]="selected" (selectedChange)="dateChanged($event)"></mat-calendar>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

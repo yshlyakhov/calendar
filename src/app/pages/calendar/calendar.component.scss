@@ -1,0 +1,9 @@
+:host {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.calendar-container {
+  width: 300px;
+  flex-basis: 300px;
+}
