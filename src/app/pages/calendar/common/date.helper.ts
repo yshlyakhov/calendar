@@ -12,3 +12,14 @@ export const coerceDate = ({ year, month, day }: DateParams): DateParams => {
 
   return { year, month, day };
 }
+
+export const getDate = ({ year, month, day }: DateParams): Date => {
+  return new Date(year, month - 1, day);
+}
+
+export const isTodayDate = (date: Date | null): boolean => {
+  if (!date) {
+    return false;
+  }
+  return new Date().setHours(0,0,0,0) === date.setHours(0,0,0,0);
+}

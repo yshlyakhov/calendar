@@ -3,7 +3,19 @@
   flex-wrap: wrap;
 }
 
+.subheader {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  .actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-basis: 300px;
+  }
+}
+
 .calendar-container {
-  width: 300px;
   flex-basis: 300px;
 }

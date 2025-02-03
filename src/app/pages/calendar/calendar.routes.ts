@@ -4,7 +4,7 @@ import { calendarDayGuard } from './common/calendar-day.guard';
 import { calendarDayResolver } from './common/calendar-day.resolver';
 import { CalendarUrlService } from './common/calendar-url.service';
 import { URL_SERVICE } from '@shared/services/url.service';
-import { CalendarPageDataService } from './common/calendar-day-page-data.service';
+import { CalendarStateService } from './common/calendar-state.service';
 
 export const CALENDAR_ROUTES: Routes = [
   {
@@ -16,7 +16,7 @@ export const CALENDAR_ROUTES: Routes = [
         provide: URL_SERVICE,
         useExisting: CalendarUrlService,
       },
-      CalendarPageDataService,
+      CalendarStateService,
     ],
     children: [
       {

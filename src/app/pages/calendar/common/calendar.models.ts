@@ -11,5 +11,9 @@ export const isDateParams = (object: Params): object is DateParams => {
 }
 
 export interface CalendarDayPageData {
-  dateParams?: DateParams|null;
+  dateParams: DateParams|null;
+}
+
+export interface CalendarState {
+  dateParams: DateParams;
 }

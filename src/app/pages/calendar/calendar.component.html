@@ -1,7 +1,14 @@
+<div class="subheader">
+  <div class="actions-container">
+    <button mat-fab extended>+ Create</button>
+    <button mat-stroked-button (click)="setToday()">Today</button>
+  </div>
+  <h3>{{ selected() | date: 'longDate' }}</h3>
+</div>
+
 <div class="calendar-container">
-  <p>Selected date: {{selected()}}</p>
   <div class="inline-calendar">
-    <mat-calendar [(selected)]="selected" (selectedChange)="dateChanged($event)"></mat-calendar>
+    <mat-calendar #calendar [(selected)]="selected" (selectedChange)="dateChanged($event)"></mat-calendar>
   </div>
 </div>
 

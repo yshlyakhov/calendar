@@ -1,1 +1,8 @@
-<p>calendar-day works!</p>
+@let date = selectedDate();
+
+<div class="current-date" [class.today]="isToday()">
+  <div class="weekday">{{ date | date: 'EEE' }}</div>
+  <div class="day">{{ date | date: 'd' }}</div>
+</div>
+
+
