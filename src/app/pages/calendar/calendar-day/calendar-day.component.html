@@ -5,4 +5,11 @@
   <div class="day">{{ date | date: 'd' }}</div>
 </div>
 
-
+<div class="schedule-container">
+  @for (slot of daySchedule(); track slot.time; let first=$first) {
+    <div class="schedule-item">
+      <div class="time-label" [class.hidden]="first">{{ slot.time }}</div>
+      <div class="time-slot"></div>
+    </div>
+  }
+</div>

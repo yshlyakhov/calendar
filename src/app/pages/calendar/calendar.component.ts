@@ -25,6 +25,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class CalendarComponent {
   private readonly router = inject(Router);
   private readonly calendarStateService = inject(CalendarStateService);
+  readonly title = 'Calendar app';
   calendar = viewChild<MatCalendar<Date>>('calendar');
   selected = model<Date | null>(null);
 

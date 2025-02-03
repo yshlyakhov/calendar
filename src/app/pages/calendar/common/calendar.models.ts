@@ -17,3 +17,5 @@ export interface CalendarDayPageData {
 export interface CalendarState {
   dateParams: DateParams;
 }
+
+export const DAY_SCHEDULE = Array(24).fill(0).map((_, index)=> ({ time: `${index < 10 ? '0' + index : index}:00`}));
