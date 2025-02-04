@@ -9,8 +9,6 @@ export const calendarDayGuard: CanActivateChildFn = (
 ): MaybeAsync<GuardResult> => {
   const router = inject(Router);
 
-  console.log(params);
-
   if (isDateParams(params) && isTodayDate(getDate(params))) {
     return router.createUrlTree([RoutesConfig.calendar.calendar, RoutesConfig.calendar.today]);
   }

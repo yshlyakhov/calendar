@@ -6,10 +6,19 @@
 </div>
 
 <div class="schedule-container">
-  @for (slot of daySchedule(); track slot.time; let first=$first) {
+  @for (slot of daySchedule(); track slot.time; let index=$index; let first=$first) {
     <div class="schedule-item">
       <div class="time-label" [class.hidden]="first">{{ slot.time }}</div>
-      <div class="time-slot"></div>
+      <div class="time-slot" (click)="appointmmentAction$.next(index)"></div>
     </div>
   }
+
+
+  <app-appointment
+    cdkDragBoundary=".schedule-container"
+    cdkDragLockAxis="y"
+    (cdkDragStarted)="dragging.set(true)"
+    [(dragging)]="dragging"
+  ></app-appointment>
+
 </div>

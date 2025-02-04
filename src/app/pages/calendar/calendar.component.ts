@@ -1,11 +1,15 @@
-import { ChangeDetectionStrategy, Component, effect, inject, model, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, model, viewChild } from '@angular/core';
 import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { Router, RouterOutlet } from '@angular/router';
 import { RoutesConfig } from '@configs';
 import { CalendarStateService } from './common/calendar-state.service';
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import { getDate, isTodayDate } from './common/date.helper';
 import { MatButtonModule } from '@angular/material/button';
+import { AppointmentService } from './common/appointment.service';
+import { Subject, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DateParams } from './common/calendar.models';
 
 @Component({
   selector: 'app-calendar',
@@ -14,6 +18,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatDatepickerModule,
     DatePipe,
     MatButtonModule,
+
+    JsonPipe, // @todo
   ],
   providers: [
 
@@ -23,19 +29,29 @@ import { MatButtonModule } from '@angular/material/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CalendarComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly calendarStateService = inject(CalendarStateService);
+  private readonly appointmentService = inject(AppointmentService);
+
   readonly title = 'Calendar app';
-  calendar = viewChild<MatCalendar<Date>>('calendar');
-  selected = model<Date | null>(null);
+  readonly calendar = viewChild<MatCalendar<Date>>('calendar');
+  readonly selected = model<Date | null>(null);
+  readonly appointmmentAction$ = new Subject<void>();
+
+  readonly state = this.calendarStateService.signal(); // @todo
 
   constructor() {
     effect(() => {
-      const dateParams = this.calendarStateService.state()?.dateParams;
+      const dateParams = this.calendarStateService.select<DateParams>('dateParams');
       const date = dateParams ? getDate(dateParams) : new Date();
       this.selected.set(date);
-      this.calendar()?._goToDateInView(date, 'month');
+      this.calendar()?._goToDateInView(date, 'month'); // sync calendar view with selected date
     });
+  }
+
+  ngOnInit(): void {
+    this.handleAppointmentAction();
   }
 
   dateChanged(date: Date): void {
@@ -54,8 +70,21 @@ export class CalendarComponent {
   setToday(): void {
     const date = new Date();
     this.selected.set(date);
-    // this.dateChanged(date);
     this.router.navigate([RoutesConfig.calendar.calendar, RoutesConfig.calendar.today]);
     this.calendar()?._goToDateInView(date, 'month');
   }
+
+  private handleAppointmentAction(): void {
+    this.appointmmentAction$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.appointmentService.create()),
+        tap(result => {
+          console.log('RESULT ', result);
+
+        }),
+      )
+      .subscribe();
+  }
+
 }

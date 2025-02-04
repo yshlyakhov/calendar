@@ -14,8 +14,20 @@ export interface CalendarDayPageData {
   dateParams: DateParams|null;
 }
 
+export interface Appointment {
+  titie: string;
+  date: Date|null;
+  startTime: Date|null;
+  endTime: Date|null;
+  description: string;
+}
 export interface CalendarState {
-  dateParams: DateParams;
+  dateParams: DateParams|null;
+  appointments: Appointment[];
 }
 
-export const DAY_SCHEDULE = Array(24).fill(0).map((_, index)=> ({ time: `${index < 10 ? '0' + index : index}:00`}));
+export interface Slot {
+  time: string;
+}
+
+export const DAY_SCHEDULE: Slot[] = Array(24).fill(0).map((_, index)=> ({ time: `${index < 10 ? '0' + index : index}:00`}));
