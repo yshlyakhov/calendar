@@ -1,0 +1,24 @@
+form > * {
+  margin-top: 24px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.date-container {
+  display: flex;
+  justify-content: space-between;
+
+  mat-form-field {
+    &.date {
+      width: 40%;
+    }
+
+    width: 30%;
+  }
+
+  & > *:not(:last-of-type) {
+    margin-right: 8px;
+  }
+}

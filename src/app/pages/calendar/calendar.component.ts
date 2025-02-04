@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, model, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, effect, inject, model, viewChild } from '@angular/core';
 import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { Router, RouterOutlet } from '@angular/router';
 import { RoutesConfig } from '@configs';
@@ -7,9 +7,10 @@ import { DatePipe, JsonPipe } from '@angular/common';
 import { getDate, isTodayDate } from './common/date.helper';
 import { MatButtonModule } from '@angular/material/button';
 import { AppointmentService } from './common/appointment.service';
-import { Subject, switchMap, tap } from 'rxjs';
+import { filter, Subject, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DateParams } from './common/calendar.models';
+import { Appointment, AppointmentCreateData, DateParams } from './common/calendar.models';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'app-calendar',
@@ -22,7 +23,7 @@ import { DateParams } from './common/calendar.models';
     JsonPipe, // @todo
   ],
   providers: [
-
+    provideNativeDateAdapter(),
   ],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.scss',
@@ -30,6 +31,7 @@ import { DateParams } from './common/calendar.models';
 })
 export class CalendarComponent {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly calendarStateService = inject(CalendarStateService);
   private readonly appointmentService = inject(AppointmentService);
@@ -78,11 +80,14 @@ export class CalendarComponent {
     this.appointmmentAction$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap(() => this.appointmentService.create()),
-        tap(result => {
-          console.log('RESULT ', result);
-
+        switchMap(() => {
+          const dateParams = this.calendarStateService.select<DateParams>('dateParams');
+          const date = dateParams ? getDate(dateParams) : new Date();
+          return this.appointmentService.create<AppointmentCreateData, Appointment|null>({ date });
         }),
+        filter(Boolean),
+        tap(result => this.appointmentService.updateState(result)),
+        tap(() => this.cdr.detectChanges()), // cruth to rerender view after returng from dialog context
       )
       .subscribe();
   }

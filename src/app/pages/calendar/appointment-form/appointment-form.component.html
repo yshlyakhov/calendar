@@ -1,1 +1,48 @@
-<p>appointment-form works!</p>
+<form [formGroup]="form">
+  <mat-form-field hintLabel="Max 50 characters">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title">
+    <mat-hint align="end">{{ form.get('title')?.value?.length }}/50</mat-hint>
+  </mat-form-field>
+
+  <div class="date-container">
+    <mat-form-field class="date">
+      <mat-label>Date</mat-label>
+      <input matInput formControlName="date" [matDatepicker]="datepicker">
+      <mat-hint>{{ dateFormat() }}</mat-hint>
+      <mat-datepicker #datepicker/>
+      <mat-datepicker-toggle [for]="datepicker" matSuffix/>
+      @if (form.get('date')?.invalid) {
+        <mat-error>{{ dateError() }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Start time</mat-label>
+      <input matInput formControlName="startTime" [matTimepicker]="pickerStart">
+      <mat-hint>{{ timeFormat() }}</mat-hint>
+      <mat-timepicker-toggle matIconSuffix [for]="pickerStart"/>
+      <mat-timepicker #pickerStart/>
+      @if (form.get('startTime')?.invalid) {
+        <mat-error>{{ startTimeError() }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>End time</mat-label>
+      <input matInput formControlName="endTime" [matTimepicker]="pickerEnd">
+      <mat-hint>{{ timeFormat() }}</mat-hint>
+      <mat-timepicker-toggle matIconSuffix [for]="pickerEnd"/>
+      <mat-timepicker #pickerEnd/>
+      @if (form.get('endTime')?.invalid) {
+        <mat-error>{{ endTimeError() }}</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <mat-form-field hintLabel="Max 250 characters">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" maxlength="250"></textarea>
+    <mat-hint align="end">{{ form.get('description')?.value?.length }}/250</mat-hint>
+  </mat-form-field>
+</form>

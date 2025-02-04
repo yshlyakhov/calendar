@@ -6,6 +6,7 @@ import { CalendarUrlService } from './common/calendar-url.service';
 import { URL_SERVICE } from '@shared/services/url.service';
 import { CalendarStateService } from './common/calendar-state.service';
 import { AppointmentService } from './common/appointment.service';
+import { dayTitleResolver } from './common/day-title.resolver';
 
 export const CALENDAR_ROUTES: Routes = [
   {
@@ -36,7 +37,7 @@ export const CALENDAR_ROUTES: Routes = [
       },
       {
         path: RoutesConfig.calendar.day,
-        title: 'day',
+        title: dayTitleResolver,
         loadComponent: () => import('./calendar-day/calendar-day.component').then(component => component.CalendarDayComponent),
         canActivate: [calendarDayGuard],
         resolve: {

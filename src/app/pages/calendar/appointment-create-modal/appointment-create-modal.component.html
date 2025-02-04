@@ -1,1 +1,14 @@
-<app-appointment-form></app-appointment-form>
+<h2 mat-dialog-title>Create appointment</h2>
+
+<mat-dialog-content class="mat-typography">
+  <app-appointment-form
+    [data]="data"
+    [(formInvalid)]="formInvalid"
+    [(formValue)]="formValue"
+  ></app-appointment-form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="formValue()" cdkFocusInitial [disabled]="formInvalid()">Create</button>
+</mat-dialog-actions>

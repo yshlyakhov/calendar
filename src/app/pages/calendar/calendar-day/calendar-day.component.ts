@@ -1,15 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, model, Signal, signal } from '@angular/core';
 import { RoutesConfig } from '@configs';
 import { URL_SERVICE } from '@shared/services/url.service';
 import { CalendarPageDataService } from '../common/calendar-day-page-data.service';
 import { CalendarStateService } from '../common/calendar-state.service';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { DateParams, DAY_SCHEDULE } from '../common/calendar.models';
-import { isTodayDate } from '../common/date.helper';
+import { Appointment, AppointmentCreateData, DateParams, DAY_SCHEDULE } from '../common/calendar.models';
+import { getDate, isTodayDate } from '../common/date.helper';
 import { AppointmentComponent } from '../appointment/appointment.component';
 import { AppointmentService } from '../common/appointment.service';
-import { Subject, switchMap, tap } from 'rxjs';
+import { filter, Subject, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-calendar-day',
@@ -26,6 +26,7 @@ import { Subject, switchMap, tap } from 'rxjs';
 })
 export class CalendarDayComponent {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly urlService = inject(URL_SERVICE);
   private readonly calendarStateService = inject(CalendarStateService);
   private readonly calendarPageDataService = inject(CalendarPageDataService);
@@ -35,7 +36,11 @@ export class CalendarDayComponent {
   isToday = computed(() => isTodayDate(this.selectedDate()!));
   readonly daySchedule = signal(DAY_SCHEDULE);
   readonly dragging = model<boolean>(false);
-  readonly appointmmentAction$ = new Subject<number>();
+  readonly appointmentAction$ = new Subject<number>();
+  readonly appointments: Signal<Appointment[]> = computed(() => {
+    const state = this.calendarStateService.signal();
+    return state()[this.calendarStateService.getDateHash()] || [];
+  });
 
   ngOnInit(): void {
     this.coerceUrl();
@@ -55,14 +60,17 @@ export class CalendarDayComponent {
   }
 
   private handleAppointmentAction(): void {
-    this.appointmmentAction$
+    this.appointmentAction$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap(index => this.appointmentService.create({ index })),
-        tap(result => {
-          console.log('RESULT ', result);
-
+        switchMap(timeslot => {
+          const dateParams = this.calendarStateService.select<DateParams>('dateParams');
+          const date = dateParams ? getDate(dateParams) : new Date();
+          return this.appointmentService.create<AppointmentCreateData, Appointment|null>({ date, timeslot });
         }),
+        filter(Boolean),
+        tap((result) => this.appointmentService.updateState(result)),
+        tap(() => this.cdr.detectChanges()), // cruth to rerender view after returng from dialog context
       )
       .subscribe();
   }
