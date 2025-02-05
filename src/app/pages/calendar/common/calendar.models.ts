@@ -52,6 +52,12 @@ export interface AppointmentCreateData {
   timeslot?: number;
 }
 
+export enum AppointmentAction {
+  CREATE,
+  EDIT,
+  DELETE,
+}
+
 export interface Data<T> {
   [key: string]: T[] | null;
 }

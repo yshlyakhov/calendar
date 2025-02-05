@@ -21,5 +21,10 @@ export class AppointmentPositionDirective {
     const height = (endTime!.getTime() - startTime!.getTime()) / MINUTE;
     this.renderer.setStyle(this.elementRef.nativeElement, 'top', `${top}px`);
     this.renderer.setStyle(this.elementRef.nativeElement, 'height', `${height}px`);
+
+    // appointment has passed
+    if (Date.now() > endTime!.getTime()) {
+      this.renderer.addClass(this.elementRef.nativeElement, 'passed');
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, effect, inject, model, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, model, viewChild } from '@angular/core';
 import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { Router, RouterOutlet } from '@angular/router';
 import { RoutesConfig } from '@configs';
@@ -9,7 +9,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { AppointmentService } from './appointment/common/appointment.service';
 import { CalendarStateService } from './common/calendar-state.service';
-import { DateParams, AppointmentCreateData, Appointment } from './common/calendar.models';
+import { DateParams, AppointmentCreateData, Appointment, AppointmentAction } from './common/calendar.models';
 import { getDate, isTodayDate, getDateParams } from './common/date.helper';
 
 @Component({
@@ -31,7 +31,6 @@ import { getDate, isTodayDate, getDateParams } from './common/date.helper';
 })
 export class CalendarComponent {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly calendarStateService = inject(CalendarStateService);
   private readonly appointmentService = inject(AppointmentService);
@@ -84,8 +83,7 @@ export class CalendarComponent {
           return this.appointmentService.create<AppointmentCreateData, Appointment|null>({ date });
         }),
         filter(Boolean),
-        tap(result => this.appointmentService.updateState(result)),
-        tap(() => this.cdr.detectChanges()), // cruth to rerender view after returng from dialog context
+        tap(result => this.appointmentService.updateState(AppointmentAction.CREATE, result)),
       )
       .subscribe();
   }

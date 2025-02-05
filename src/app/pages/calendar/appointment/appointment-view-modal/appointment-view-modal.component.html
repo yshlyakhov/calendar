@@ -1,1 +1,23 @@
-<p>appointment-view-modal works!</p>
+<div class="dialog-title-container">
+  <h2 mat-dialog-title>Appointment details</h2>
+  <mat-dialog-actions align="end">
+    <button mat-mini-fab aria-label="Edit appointment" [mat-dialog-close]="appointmentAction.EDIT">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-mini-fab aria-label="Delete appointment" [mat-dialog-close]="appointmentAction.DELETE">
+      <mat-icon>delete_outline</mat-icon>
+    </button>
+  </mat-dialog-actions>
+</div>
+
+<mat-dialog-content class="mat-typography">
+  <h4>{{ appointment.title || 'Untitled' }}</h4>
+  <div>
+    <span>{{ appointment.date | date: 'EEEE, MMMM d' }}</span>
+    <span>&nbsp;&#x2022;&nbsp;</span>
+    <span>{{ appointment.startTime | date: 'HH:mm' }}</span>
+    <span>&mdash;</span>
+    <span>{{ appointment.endTime | date: 'HH:mm' }}</span>
+  </div>
+  <div>{{ appointment.description }}</div>
+</mat-dialog-content>

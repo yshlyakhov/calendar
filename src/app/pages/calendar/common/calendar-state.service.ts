@@ -6,7 +6,9 @@ const DEFAUTL_CALENDRA_STATE: CalendarState = {
   dateParams: null,
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class CalendarStateService {
   private readonly state = signal<CalendarState>(DEFAUTL_CALENDRA_STATE);
 

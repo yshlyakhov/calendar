@@ -1,13 +1,16 @@
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { AppointmentViewModalComponent } from './appointment-view-modal/appointment-view-modal.component';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, model } from '@angular/core';
 import { AppointmentPositionDirective } from './common/appointment-position.directive';
+import { AppointmentService } from './common/appointment.service';
+import { filter, Subject, switchMap, tap } from 'rxjs';
+import { Appointment, AppointmentAction } from '../common/calendar.models';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-appointment',
   imports: [
-
+    DatePipe,
   ],
   templateUrl: './appointment.component.html',
   styleUrl: './appointment.component.scss',
@@ -28,8 +31,15 @@ import { AppointmentPositionDirective } from './common/appointment-position.dire
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppointmentComponent {
-  private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly appointmentService = inject(AppointmentService);
   readonly dragging = model<boolean>();
+  readonly appointmentAction$ = new Subject<void>();
+  readonly appointment = input.required<Appointment>();
+
+  ngOnInit(): void {
+    this.handleAppointmentAction();
+  }
 
   handleClick(event: PointerEvent): void {
     event.preventDefault();
@@ -42,10 +52,29 @@ export class AppointmentComponent {
       this.dragging.set(false);
       return;
     }
-    this.showAppointmentDetails();
+    this.appointmentAction$.next();
   }
 
-  private showAppointmentDetails(): void {
-    this.dialog.open(AppointmentViewModalComponent);
+  private handleAppointmentAction(): void {
+    this.appointmentAction$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.appointmentService.view(this.appointment())),
+        filter(Boolean),
+        tap((action) => {
+          switch (action) {
+            case AppointmentAction.DELETE:
+              this.appointmentService.delete(this.appointment());
+              break;
+            case AppointmentAction.EDIT:
+              // @todo
+              break;
+          }
+
+          // this.appointmentService.updateState(result);
+        }),
+      )
+      .subscribe();
   }
+
 }

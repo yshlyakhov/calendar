@@ -7,7 +7,7 @@ import { filter, Subject, switchMap, tap } from 'rxjs';
 import { AppointmentComponent } from '../appointment/appointment.component';
 import { AppointmentService } from '../appointment/common/appointment.service';
 import { CalendarStateService } from '../common/calendar-state.service';
-import { DAY_SCHEDULE, Appointment, DateParams, AppointmentCreateData } from '../common/calendar.models';
+import { DAY_SCHEDULE, Appointment, DateParams, AppointmentCreateData, AppointmentAction } from '../common/calendar.models';
 import { isTodayDate, getDate } from '../common/date.helper';
 import { CalendarPageDataService } from './common/calendar-day-page-data.service';
 
@@ -39,6 +39,7 @@ export class CalendarDayComponent {
   readonly appointmentAction$ = new Subject<number>();
   readonly appointments: Signal<Appointment[]> = computed(() => {
     const state = this.calendarStateService.signal();
+    this.cdr.markForCheck();
     return state()[this.calendarStateService.getDateHash()] || [];
   });
 
@@ -69,8 +70,7 @@ export class CalendarDayComponent {
           return this.appointmentService.create<AppointmentCreateData, Appointment|null>({ date, timeslot });
         }),
         filter(Boolean),
-        tap((result) => this.appointmentService.updateState(result)),
-        tap(() => this.cdr.detectChanges()), // cruth to rerender view after returng from dialog context
+        tap((result) => this.appointmentService.updateState(AppointmentAction.CREATE, result)),
       )
       .subscribe();
   }
