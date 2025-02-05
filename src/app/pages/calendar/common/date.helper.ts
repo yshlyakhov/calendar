@@ -54,3 +54,8 @@ export const getAppointmentDate = (date = new Date(), timeslot: number = -1): Ap
 export const getMinutesOffset = (date: Date): number => {
   return (date.getTime() - new Date(date).setHours(0,0,0,0)) / MINUTE;
 }
+
+export const updateDateByMinutes = (date: Date, delta: number = 0): Date => {
+  const result = new Date(date);
+  return new Date(result.setMinutes(date.getMinutes() + delta, 0, 0));
+}

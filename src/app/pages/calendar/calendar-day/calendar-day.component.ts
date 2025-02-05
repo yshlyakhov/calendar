@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, model, Signal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, Signal, signal } from '@angular/core';
 import { RoutesConfig } from '@configs';
 import { URL_SERVICE } from '@shared/services/url.service';
 import { DatePipe } from '@angular/common';
@@ -35,7 +35,6 @@ export class CalendarDayComponent {
   selectedDate = toSignal(this.calendarPageDataService.selectedDate$);
   isToday = computed(() => isTodayDate(this.selectedDate()!));
   readonly daySchedule = signal(DAY_SCHEDULE);
-  readonly dragging = model<boolean>(false);
   readonly appointmentAction$ = new Subject<number>();
   readonly appointments: Signal<Appointment[]> = computed(() => {
     const state = this.calendarStateService.signal();

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, model, 
 import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { Router, RouterOutlet } from '@angular/router';
 import { RoutesConfig } from '@configs';
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { filter, Subject, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,8 +19,6 @@ import { getDate, isTodayDate, getDateParams } from './common/date.helper';
     MatDatepickerModule,
     DatePipe,
     MatButtonModule,
-
-    JsonPipe, // @todo
   ],
   providers: [
     provideNativeDateAdapter(),
@@ -34,13 +32,10 @@ export class CalendarComponent {
   private readonly router = inject(Router);
   private readonly calendarStateService = inject(CalendarStateService);
   private readonly appointmentService = inject(AppointmentService);
-
   readonly title = 'Calendar app';
   readonly calendar = viewChild<MatCalendar<Date>>('calendar');
   readonly selected = model<Date | null>(null);
   readonly appointmmentAction$ = new Subject<void>();
-
-  readonly state = this.calendarStateService.signal(); // @todo
 
   constructor() {
     effect(() => {

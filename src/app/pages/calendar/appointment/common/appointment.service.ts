@@ -49,4 +49,17 @@ export class AppointmentService {
     }
     this.calendarStateService.update(key, appointments);
   }
+
+  checkTimeOverlaping({ date, startTime, endTime, id }: Partial<Appointment>): boolean {
+    const key = getDateHash(getDateParams(date!));
+    let appointments = this.calendarStateService.select<Appointment[]>(key) || [];
+
+    if (appointments.length > 1) { // we need at leat 2 appointments to check overlaping
+      const overlaps = appointments.filter(
+        item => id !== item.id && (startTime! > item.startTime! && startTime! < item.endTime! || endTime! > item.startTime! && endTime! < item.endTime!)
+      ).length;
+      return overlaps > 0;
+    }
+    return false;
+  }
 }
