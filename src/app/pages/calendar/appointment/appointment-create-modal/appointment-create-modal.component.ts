@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
-import { AppointmentFormComponent } from '../appointment-form/appointment-form.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { Appointment, AppointmentCreateData } from '../common/calendar.models';
+import { AppointmentCreateData, Appointment } from '@pages/calendar/common/calendar.models';
+import { AppointmentFormComponent } from '../appointment-form/appointment-form.component';
 
 @Component({
   selector: 'app-appointment-create-modal',

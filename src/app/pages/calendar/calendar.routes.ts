@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 import { RoutesConfig } from '@configs';
-import { calendarDayGuard } from './common/calendar-day.guard';
-import { calendarDayResolver } from './common/calendar-day.resolver';
-import { CalendarUrlService } from './common/calendar-url.service';
 import { URL_SERVICE } from '@shared/services/url.service';
+import { AppointmentService } from './appointment/common/appointment.service';
+import { calendarDayGuard } from './calendar-day/common/calendar-day.guard';
+import { calendarDayResolver } from './calendar-day/common/calendar-day.resolver';
 import { CalendarStateService } from './common/calendar-state.service';
-import { AppointmentService } from './common/appointment.service';
+import { CalendarUrlService } from './common/calendar-url.service';
 import { dayTitleResolver } from './common/day-title.resolver';
 
 export const CALENDAR_ROUTES: Routes = [

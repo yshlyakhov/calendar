@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, model, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { Appointment, AppointmentCreateData } from '../common/calendar.models';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MAT_TIMEPICKER_CONFIG, MatTimepickerModule } from '@angular/material/timepicker';
 import { debounceTime, merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Appointment, AppointmentCreateData } from '@pages/calendar/common/calendar.models';
 
 type AppointmentFormType = {
   [K in keyof Appointment]: FormControl<Appointment[K]>;
@@ -15,8 +15,8 @@ type AppointmentFormType = {
 
 const timeRangeValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const { startTime, endTime } = group.value;
-  const errors = startTime && endTime && (startTime > endTime) ? { timeRange: true } : null;
-  if (group.get('startTime')?.valid) {
+  const errors = startTime && endTime && (startTime >= endTime) ? { timeRange: true } : null;
+  if (group.get('startTime')?.valid || group.get('startTime')?.hasError('timeRange')) {
     group.get('startTime')?.setErrors(errors);
   }
   return errors;
@@ -46,7 +46,7 @@ export class AppointmentFormComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   form!: FormGroup<AppointmentFormType>;
-  initilDate: Date | null = null;
+  readonly initialDate: Date | null = null;
   readonly dateFormat = signal<string>('DD/MM/YYYY');
   readonly timeFormat = signal<string>('HH:MM');
   readonly dateError = signal<string>('');
@@ -67,9 +67,9 @@ export class AppointmentFormComponent {
       {
         id: ['', { validators: [Validators.required] }],
         title: [''],
-        date: [this.initilDate, { validators: [Validators.required] }],
-        startTime: [this.initilDate, { validators: [Validators.required] }],
-        endTime: [this.initilDate, { validators: [Validators.required] }],
+        date: [this.initialDate, { validators: [Validators.required] }],
+        startTime: [this.initialDate, { validators: [Validators.required] }],
+        endTime: [this.initialDate, { validators: [Validators.required] }],
         description: [''],
       },
       {

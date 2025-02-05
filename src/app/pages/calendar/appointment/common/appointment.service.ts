@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AppointmentCreateModalComponent } from '../appointment-create-modal/appointment-create-modal.component';
+import { AppointmentCreateModalComponent } from '@pages/calendar/appointment/appointment-create-modal/appointment-create-modal.component';
+import { CalendarStateService } from '@pages/calendar/common/calendar-state.service';
+import { Appointment } from '@pages/calendar/common/calendar.models';
+import { getDateHash, getDateParams } from '@pages/calendar/common/date.helper';
 import { Observable } from 'rxjs';
-import { CalendarStateService } from './calendar-state.service';
-import { Appointment } from './calendar.models';
 
 @Injectable()
 export class AppointmentService {
@@ -14,10 +15,10 @@ export class AppointmentService {
     return this.dialog.open(AppointmentCreateModalComponent, { data }).afterClosed();
   }
 
-  updateState<R>(result: R): void {
-    const key = this.calendarStateService.getDateHash(); // @todo should depends on DATE from result
+  updateState(result: Appointment): void {
+    const key = getDateHash(getDateParams(result.date!));
     const appointments = this.calendarStateService.select<Appointment[]>(key) || [];
-    appointments.push(new Appointment());
+    appointments.push(result);
     this.calendarStateService.update(key, appointments);
   }
 }

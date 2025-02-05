@@ -2,15 +2,15 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, effe
 import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { Router, RouterOutlet } from '@angular/router';
 import { RoutesConfig } from '@configs';
-import { CalendarStateService } from './common/calendar-state.service';
 import { DatePipe, JsonPipe } from '@angular/common';
-import { getDate, isTodayDate } from './common/date.helper';
 import { MatButtonModule } from '@angular/material/button';
-import { AppointmentService } from './common/appointment.service';
 import { filter, Subject, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Appointment, AppointmentCreateData, DateParams } from './common/calendar.models';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { AppointmentService } from './appointment/common/appointment.service';
+import { CalendarStateService } from './common/calendar-state.service';
+import { DateParams, AppointmentCreateData, Appointment } from './common/calendar.models';
+import { getDate, isTodayDate, getDateParams } from './common/date.helper';
 
 @Component({
   selector: 'app-calendar',
@@ -61,9 +61,7 @@ export class CalendarComponent {
     if (isTodayDate(this.selected())) {
       commands = [RoutesConfig.calendar.calendar, RoutesConfig.calendar.today];
     } else {
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
+      const { year, month, day } = getDateParams(date);
       commands = [RoutesConfig.calendar.calendar, year, month, day];
     }
     this.router.navigate(commands);

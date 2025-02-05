@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateChildFn, GuardResult, MaybeAsync, Router } from '@angular/router';
 import { RoutesConfig } from '@configs';
-import { isDateParams } from './calendar.models';
-import { getDate, isTodayDate } from './date.helper';
+import { isDateParams } from '@pages/calendar/common/calendar.models';
+import { isTodayDate, getDate } from '@pages/calendar/common/date.helper';
 
 export const calendarDayGuard: CanActivateChildFn = (
   { params }: ActivatedRouteSnapshot,

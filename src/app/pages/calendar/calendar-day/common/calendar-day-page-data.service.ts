@@ -1,9 +1,9 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
-import { CalendarDayPageData } from './calendar.models';
 import { ActivatedRoute } from '@angular/router';
 import { filter, map, ReplaySubject, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { getDate } from './date.helper';
+import { CalendarDayPageData } from '@pages/calendar/common/calendar.models';
+import { getDate } from '@pages/calendar/common/date.helper';
 
 @Injectable()
 export class CalendarPageDataService {

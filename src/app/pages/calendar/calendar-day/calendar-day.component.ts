@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, model, Signal, signal } from '@angular/core';
 import { RoutesConfig } from '@configs';
 import { URL_SERVICE } from '@shared/services/url.service';
-import { CalendarPageDataService } from '../common/calendar-day-page-data.service';
-import { CalendarStateService } from '../common/calendar-state.service';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { Appointment, AppointmentCreateData, DateParams, DAY_SCHEDULE } from '../common/calendar.models';
-import { getDate, isTodayDate } from '../common/date.helper';
-import { AppointmentComponent } from '../appointment/appointment.component';
-import { AppointmentService } from '../common/appointment.service';
 import { filter, Subject, switchMap, tap } from 'rxjs';
+import { AppointmentComponent } from '../appointment/appointment.component';
+import { AppointmentService } from '../appointment/common/appointment.service';
+import { CalendarStateService } from '../common/calendar-state.service';
+import { DAY_SCHEDULE, Appointment, DateParams, AppointmentCreateData } from '../common/calendar.models';
+import { isTodayDate, getDate } from '../common/date.helper';
+import { CalendarPageDataService } from './common/calendar-day-page-data.service';
 
 @Component({
   selector: 'app-calendar-day',

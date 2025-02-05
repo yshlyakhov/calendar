@@ -1,7 +1,8 @@
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, ElementRef, inject, model, Renderer2 } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AppointmentViewModalComponent } from '../appointment-view-modal/appointment-view-modal.component';
+import { AppointmentViewModalComponent } from './appointment-view-modal/appointment-view-modal.component';
+import { AppointmentPositionDirective } from './common/appointment-position.directive';
 
 @Component({
   selector: 'app-appointment',
@@ -16,6 +17,10 @@ import { AppointmentViewModalComponent } from '../appointment-view-modal/appoint
       inputs: ['cdkDragBoundary', 'cdkDragLockAxis'],
       outputs: ['cdkDragStarted'],
     },
+    {
+      directive: AppointmentPositionDirective,
+      inputs: ['appointment'],
+    },
   ],
   host: {
     '(click)': 'handleClick($event)',
@@ -23,16 +28,8 @@ import { AppointmentViewModalComponent } from '../appointment-view-modal/appoint
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppointmentComponent {
-  private readonly elementRef = inject(ElementRef);
-  private readonly renderer = inject(Renderer2);
   private readonly dialog = inject(MatDialog);
   readonly dragging = model<boolean>();
-
-
-  ngOnInit(): void {
-    this.renderer.setStyle(this.elementRef.nativeElement, 'top', '0');
-    this.renderer.setStyle(this.elementRef.nativeElement, 'height', '60px');
-  }
 
   handleClick(event: PointerEvent): void {
     event.preventDefault();

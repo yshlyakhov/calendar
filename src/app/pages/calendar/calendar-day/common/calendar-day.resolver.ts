@@ -1,8 +1,8 @@
 import { ActivatedRouteSnapshot, MaybeAsync, RedirectCommand, ResolveFn } from '@angular/router';
-import { CalendarDayPageData, DateParams } from './calendar.models';
-import { coerceDate } from './date.helper';
 import { inject } from '@angular/core';
-import { CalendarStateService } from './calendar-state.service';
+import { CalendarStateService } from '@pages/calendar/common/calendar-state.service';
+import { CalendarDayPageData, DateParams } from '@pages/calendar/common/calendar.models';
+import { coerceDate } from '@pages/calendar/common/date.helper';
 
 export const calendarDayResolver: ResolveFn<CalendarDayPageData> = (
   { params }: ActivatedRouteSnapshot
