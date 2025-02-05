@@ -40,6 +40,10 @@
     </mat-form-field>
   </div>
 
+  @if (form.hasError('appointmentOverlaping')) {
+    <mat-error>Appintments overlap with existing, please change date and/or time</mat-error>
+  }
+
   <mat-form-field hintLabel="Max 250 characters">
     <mat-label>Description</mat-label>
     <textarea matInput formControlName="description" maxlength="250"></textarea>

@@ -32,4 +32,18 @@ export class CalendarStateService {
     const params = this.get().dateParams;
     return params ? getDateHash(params) : 'today';
   }
+
+  removeAppointmentById(id: string): void {
+    const state = this.state();
+
+    for (const key in state) {
+      if (key !== 'dateParams') {
+        const index = state[key]!.findIndex(item => item.id === id);
+        if (index > -1) {
+          state[key]?.splice(index, 1);
+          return;
+        }
+      }
+    }
+  }
 }

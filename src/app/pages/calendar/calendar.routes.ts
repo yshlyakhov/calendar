@@ -17,7 +17,6 @@ export const CALENDAR_ROUTES: Routes = [
         provide: URL_SERVICE,
         useExisting: CalendarUrlService,
       },
-      AppointmentService,
     ],
     children: [
       {

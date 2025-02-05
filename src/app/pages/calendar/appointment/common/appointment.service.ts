@@ -8,7 +8,9 @@ import { Observable, of } from 'rxjs';
 import { AppointmentViewModalComponent } from '../appointment-view-modal/appointment-view-modal.component';
 import { AppointmentEditModalComponent } from '../appointment-edit-modal/appointment-edit-modal.component';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class AppointmentService {
   private readonly dialog = inject(MatDialog);
   private readonly calendarStateService = inject(CalendarStateService);
@@ -41,7 +43,13 @@ export class AppointmentService {
         break;
       case AppointmentAction.EDIT:
         const index = appointments.findIndex(({ id }) => id === data.id );
-        appointments[index] = data;
+        if (index > -1) {
+          appointments[index] = data;
+        } else {
+        // another date case
+          this.calendarStateService.removeAppointmentById(data.id);
+          appointments.push(data);
+        }
         break;
       case AppointmentAction.DELETE:
         appointments = appointments.filter(({ id }) => id !== data.id);
@@ -54,10 +62,15 @@ export class AppointmentService {
     const key = getDateHash(getDateParams(date!));
     let appointments = this.calendarStateService.select<Appointment[]>(key) || [];
 
-    if (appointments.length > 1) { // we need at leat 2 appointments to check overlaping
+    if (appointments.length > 0) {
       const overlaps = appointments.filter(
-        item => id !== item.id && (startTime! > item.startTime! && startTime! < item.endTime! || endTime! > item.startTime! && endTime! < item.endTime!)
+        item => id !== item.id && (
+          startTime! > item.startTime! && startTime! < item.endTime!
+          || endTime! > item.startTime! && endTime! < item.endTime!
+          || startTime! <= item.startTime! && startTime! <= item.endTime! && endTime! >= item.startTime! && endTime! >= item.endTime!
+        )
       ).length;
+
       return overlaps > 0;
     }
     return false;

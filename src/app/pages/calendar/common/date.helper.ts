@@ -59,3 +59,9 @@ export const updateDateByMinutes = (date: Date, delta: number = 0): Date => {
   const result = new Date(date);
   return new Date(result.setMinutes(date.getMinutes() + delta, 0, 0));
 }
+
+export const updateDateByTime = (date: Date, time: Date): Date => {
+  const result = new Date(date);
+  result.setHours(time.getHours(), time.getMinutes());
+  return new Date(result);
+}

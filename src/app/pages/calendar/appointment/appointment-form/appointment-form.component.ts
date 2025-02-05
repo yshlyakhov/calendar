@@ -1,13 +1,15 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, model, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, model, ModelSignal, signal } from '@angular/core';
+import { AbstractControl, AsyncValidatorFn, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MAT_TIMEPICKER_CONFIG, MatTimepickerModule } from '@angular/material/timepicker';
-import { debounceTime, merge } from 'rxjs';
+import { debounceTime, map, timer } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Appointment, AppointmentAction, AppointmentCreateData } from '@pages/calendar/common/calendar.models';
+import { AppointmentService } from '../common/appointment.service';
+import { updateDateByTime } from '@pages/calendar/common/date.helper';
 
 type AppointmentFormType = {
   [K in keyof Appointment]: FormControl<Appointment[K]>;
@@ -20,6 +22,19 @@ const timeRangeValidator: ValidatorFn = (group: AbstractControl): ValidationErro
     group.get('startTime')?.setErrors(errors);
   }
   return errors;
+}
+
+const overlapingAsyncValidator = (appointmentService: AppointmentService, formInvalid: ModelSignal<boolean|undefined>): AsyncValidatorFn => {
+  return (group: AbstractControl) => {
+    return timer(100)
+      .pipe(
+        map(() => {
+          const errors = appointmentService.checkTimeOverlaping(group.value) ? { appointmentOverlaping: true } : null;
+          formInvalid.set(Boolean(errors));
+          return errors;
+        }),
+      );
+  }
 }
 
 @Component({
@@ -44,6 +59,7 @@ const timeRangeValidator: ValidatorFn = (group: AbstractControl): ValidationErro
 })
 export class AppointmentFormComponent {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly appointmentService = inject(AppointmentService);
   private readonly fb = inject(FormBuilder);
   form!: FormGroup<AppointmentFormType>;
   readonly initialDate: Date | null = null;
@@ -75,6 +91,7 @@ export class AppointmentFormComponent {
       },
       {
         validators: [timeRangeValidator],
+        asyncValidators: [overlapingAsyncValidator(this.appointmentService, this.formInvalid)],
         // updateOn: 'blur',
       }
     );
@@ -89,16 +106,22 @@ export class AppointmentFormComponent {
   }
 
   private handleForm(): void {
-    merge(this.form.get('date')!.statusChanges, this.form.get('date')!.valueChanges)
+    this.form.get('date')!.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         debounceTime(400),
       )
-      .subscribe(() => {
+      .subscribe((date: Date|null) => {
         this.dateError.set(this.getErrorMessage(this.form.get('date')!));
+
+        // sync date and times
+        if (!this.form.get('date')!.errors && !this.form.get('startTime')!.errors && !this.form.get('endTime')!.errors ) {
+          this.form.get('startTime')!.setValue(updateDateByTime(date!, this.form.get('startTime')!.value!));
+          this.form.get('endTime')!.setValue(updateDateByTime(date!, this.form.get('endTime')!.value!));
+        }
       });
 
-    merge(this.form.get('startTime')!.statusChanges, this.form.get('startTime')!.valueChanges)
+    this.form.get('startTime')!.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         debounceTime(400),
@@ -107,7 +130,7 @@ export class AppointmentFormComponent {
         this.startTimeError.set(this.getErrorMessage(this.form.get('startTime')!));
       });
 
-    merge(this.form.get('endTime')!.statusChanges, this.form.get('endTime')!.valueChanges)
+    this.form.get('endTime')!.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         debounceTime(400),
