@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Edit appointment</h2>
+
+<mat-dialog-content class="mat-typography">
+  <app-appointment-form
+    [mode]="mode"
+    [data]="data"
+    [(formInvalid)]="formInvalid"
+    [(formValue)]="formValue"
+  ></app-appointment-form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="formValue()" cdkFocusInitial [disabled]="formInvalid()">Save</button>
+</mat-dialog-actions>

@@ -28,6 +28,7 @@ export class Appointment implements AppointmentDate {
   startTime: Date|null;
   endTime: Date|null;
   description: string;
+  lastModified?: number; // unique value for track fn
 
   constructor(data?: AppointmentCreateData, { id, title, date, startTime, endTime, description }: Appointment = {
     id: Math.random().toString().slice(-6),
@@ -35,7 +36,7 @@ export class Appointment implements AppointmentDate {
     date: null,
     startTime: null,
     endTime: null,
-    description: ''
+    description: '',
   }) {
     const appointmentDate = data ? getAppointmentDate(data.date, data.timeslot) :  getAppointmentDate();
     this.id = id;
@@ -44,6 +45,7 @@ export class Appointment implements AppointmentDate {
     this.startTime = startTime || appointmentDate.startTime;
     this.endTime = endTime || appointmentDate.endTime;
     this.description = description;
+
   }
 }
 

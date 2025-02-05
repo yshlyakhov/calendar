@@ -4,7 +4,6 @@
   z-index: 1;
   position: absolute;
   overflow: hidden;
-  padding: 4px 12px;
   left: 64px;
   right: 24px;
   background-color: $color-appointment-bg;
@@ -23,4 +22,8 @@
     color: $color-text-secondary;
     background-color: $color-appointment-passed-bg;
   }
+}
+
+.appointment-container {
+  padding: 4px 12px;
 }

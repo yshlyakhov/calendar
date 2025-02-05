@@ -1,6 +1,9 @@
-<div>{{ appointment().title || 'Untitled' }}</div>
-<div>
-  <span>{{ appointment().startTime | date: 'HH:mm' }}</span>
-  <span>&mdash;</span>
-  <span>{{ appointment().endTime | date: 'HH:mm' }}</span>
+<div class="appointment-container">
+  <div>{{ appointment().title || '(No title)' }}</div>
+  <div>
+    <span>{{ appointment().startTime | date: 'HH:mm' }}</span>
+    <span>&mdash;</span>
+    <span>{{ appointment().endTime | date: 'HH:mm' }}</span>
+  </div>
 </div>
+

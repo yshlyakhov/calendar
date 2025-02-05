@@ -61,20 +61,19 @@ export class AppointmentComponent {
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => this.appointmentService.view(this.appointment())),
         filter(Boolean),
-        tap((action) => {
+        switchMap((action) => {
           switch (action) {
             case AppointmentAction.DELETE:
-              this.appointmentService.delete(this.appointment());
-              break;
+              return this.appointmentService.delete(this.appointment());
             case AppointmentAction.EDIT:
-              // @todo
-              break;
+              return this.appointmentService.edit(this.appointment());
           }
-
-          // this.appointmentService.updateState(result);
+        }),
+        filter(Boolean),
+        tap((result: Appointment) => {
+          this.appointmentService.updateState(AppointmentAction.EDIT, result);
         }),
       )
       .subscribe();
   }
-
 }

@@ -30,7 +30,7 @@ export class NotificationService {
           tap(() => {
             const upcomingAppointments = this.getUpcomingAppointments();
             if (upcomingAppointments?.length) {
-              upcomingAppointments.forEach(({ title, startTime }) => new Notification(`${title || 'Untitled'}: starts at ${formatDate(startTime!, 'shortTime', this.locale)}`));
+              upcomingAppointments.forEach(({ title, startTime }) => new Notification(`${title || '(No title)'}: starts at ${formatDate(startTime!, 'shortTime', this.locale)}`));
             }
           })
         )

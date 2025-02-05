@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MAT_TIMEPICKER_CONFIG, MatTimepickerModule } from '@angular/material/timepicker';
 import { debounceTime, merge } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Appointment, AppointmentCreateData } from '@pages/calendar/common/calendar.models';
+import { Appointment, AppointmentAction, AppointmentCreateData } from '@pages/calendar/common/calendar.models';
 
 type AppointmentFormType = {
   [K in keyof Appointment]: FormControl<Appointment[K]>;
@@ -52,7 +52,8 @@ export class AppointmentFormComponent {
   readonly dateError = signal<string>('');
   readonly startTimeError = signal<string>('');
   readonly endTimeError = signal<string>('');
-  readonly data = input<AppointmentCreateData>();
+  readonly mode = input<AppointmentAction>();
+  readonly data = input<AppointmentCreateData | Appointment>();
   readonly formInvalid = model<boolean>();
   readonly formValue = model<Appointment>();
 
@@ -80,7 +81,11 @@ export class AppointmentFormComponent {
   }
 
   private patchForm(): void {
-    this.form.patchValue(new Appointment(this.data()));
+    if (this.mode() === AppointmentAction.EDIT) {
+      this.form.patchValue(this.data() as Appointment);
+    } else {
+      this.form.patchValue(new Appointment(this.data() as AppointmentCreateData));
+    }
   }
 
   private handleForm(): void {
