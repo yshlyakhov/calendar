@@ -1,7 +1,7 @@
 <form [formGroup]="form">
   <mat-form-field hintLabel="Max 50 characters">
     <mat-label>Title</mat-label>
-    <input matInput formControlName="title">
+    <input matInput formControlName="title" maxlength="50">
     <mat-hint align="end">{{ form.get('title')?.value?.length }}/50</mat-hint>
   </mat-form-field>
 
@@ -41,7 +41,7 @@
   </div>
 
   @if (form.hasError('appointmentOverlaping')) {
-    <mat-error>Appintments overlap with existing, please change date and/or time</mat-error>
+    <mat-error>Appointment overlaps with existing, please change date and/or time</mat-error>
   }
 
   <mat-form-field hintLabel="Max 250 characters">

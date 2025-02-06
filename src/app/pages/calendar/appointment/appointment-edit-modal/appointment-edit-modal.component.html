@@ -11,5 +11,5 @@
 
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="formValue()" cdkFocusInitial [disabled]="formInvalid()">Save</button>
+  <button mat-button [mat-dialog-close]="formValue()" [disabled]="formInvalid()">Save</button>
 </mat-dialog-actions>

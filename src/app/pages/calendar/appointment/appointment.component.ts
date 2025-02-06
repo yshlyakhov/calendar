@@ -45,9 +45,6 @@ export class AppointmentComponent {
   }
 
   handleClick(event: PointerEvent): void {
-    // event.preventDefault();
-    // event.stopPropagation();
-
     /**
      * to separate drag and click events
      */
@@ -58,12 +55,12 @@ export class AppointmentComponent {
     this.appointmentAction$.next();
   }
 
-  handleDragStarted(): void {
+  handleDragStarted(event: CdkDragEnd): void {
     this.dragging.set(true);
   }
 
   handleDragEnded(event: CdkDragEnd) {
-    const { date, startTime, endTime } = this.appointment();
+    const { startTime, endTime } = this.appointment();
     const cdkDrag = event.source._dragRef;
     const targetTopPosition = cdkDrag.getFreeDragPosition().y;
     const newAppointment = {

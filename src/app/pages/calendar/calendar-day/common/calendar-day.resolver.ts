@@ -12,6 +12,7 @@ export const calendarDayResolver: ResolveFn<CalendarDayPageData> = (
   const dateParams: DateParams|null = Object.keys(params).length > 0 ? coerceDate({ year, month, day }) : null;
   calendarStateService.update('dateParams', dateParams);
 
+  // @todo
   return {
     dateParams
   };
