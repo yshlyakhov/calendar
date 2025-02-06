@@ -13,39 +13,33 @@ export const isDateParams = (object: Params): object is DateParams => {
 
 export interface CalendarDayPageData {
   dateParams: DateParams|null;
+  data: Appointment[];
 }
 
 export interface AppointmentDate {
-  date: Date|null;
-  startTime: Date|null;
-  endTime: Date|null;
+  date: Date;
+  startTime: Date;
+  endTime: Date;
 }
 
-export class Appointment implements AppointmentDate {
+export class Appointment {
   id: string;
   title: string;
-  date: Date|null;
-  startTime: Date|null;
-  endTime: Date|null;
+  date: Date;
+  startTime: Date;
+  endTime: Date;
   description: string;
-  lastModified?: number; // unique value for track fn
+  lastModified: number; // unique value for track fn
 
-  constructor(data?: AppointmentCreateData, { id, title, date, startTime, endTime, description }: Appointment = {
-    id: Math.random().toString().slice(-6),
-    title: '',
-    date: null,
-    startTime: null,
-    endTime: null,
-    description: '',
-  }) {
-    const appointmentDate = data ? getAppointmentDate(data.date, data.timeslot) :  getAppointmentDate();
-    this.id = id;
-    this.title = title;
-    this.date = date || appointmentDate.date;
-    this.startTime = startTime || appointmentDate.startTime;
-    this.endTime = endTime || appointmentDate.endTime;
-    this.description = description;
-
+  constructor(data?: AppointmentCreateData) {
+    const { date, startTime, endTime } = data ? getAppointmentDate(data.date, data.timeslot) :  getAppointmentDate(new Date());
+    this.id = Math.random().toString().slice(-6);
+    this.title = '';
+    this.date = date;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.description = '';
+    this.lastModified = Date.now();
   }
 }
 
@@ -73,3 +67,12 @@ export interface TimeSlot {
 }
 
 export const DAY_SCHEDULE: TimeSlot[] = Array(24).fill(0).map((_, index)=> ({ time: `${index < 10 ? '0' + index : index}:00`}));
+
+export const APPOINTMENT_CONFIG = {
+  title: {
+    maxLength: 50,
+  },
+  description: {
+    maxLength: 250,
+  }
+}

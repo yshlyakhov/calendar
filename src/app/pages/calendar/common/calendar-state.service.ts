@@ -16,6 +16,10 @@ export class CalendarStateService {
     return this.state();
   }
 
+  set(state: CalendarState): void {
+    this.state.set(state);
+  }
+
   signal(): Signal<CalendarState> {
     return this.state.asReadonly();
   }

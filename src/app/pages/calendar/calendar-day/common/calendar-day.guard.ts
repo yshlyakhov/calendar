@@ -12,6 +12,5 @@ export const calendarDayGuard: CanActivateChildFn = (
   if (isDateParams(params) && isTodayDate(getDate(params))) {
     return router.createUrlTree([RoutesConfig.calendar.calendar, RoutesConfig.calendar.today]);
   }
-
   return isDateParams(params)|| router.createUrlTree([RoutesConfig.general.root, RoutesConfig.general.notFound]);
 }

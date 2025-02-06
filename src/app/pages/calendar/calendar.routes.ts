@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { RoutesConfig } from '@configs';
 import { URL_SERVICE } from '@shared/services/url.service';
-import { AppointmentService } from './appointment/common/appointment.service';
 import { calendarDayGuard } from './calendar-day/common/calendar-day.guard';
 import { calendarDayResolver } from './calendar-day/common/calendar-day.resolver';
 import { CalendarUrlService } from './common/calendar-url.service';
@@ -41,7 +40,6 @@ export const CALENDAR_ROUTES: Routes = [
           pageData: calendarDayResolver,
         },
       },
-
     ],
   }
 ];

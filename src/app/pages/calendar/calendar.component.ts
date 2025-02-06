@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, model, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, model, viewChild } from '@angular/core';
 import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { Router, RouterOutlet } from '@angular/router';
 import { RoutesConfig } from '@configs';
@@ -9,8 +9,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { AppointmentService } from './appointment/common/appointment.service';
 import { CalendarStateService } from './common/calendar-state.service';
-import { DateParams, AppointmentCreateData, Appointment, AppointmentAction } from './common/calendar.models';
+import { DateParams, AppointmentCreateData, Appointment, AppointmentAction, CalendarState } from './common/calendar.models';
 import { getDate, isTodayDate, getDateParams } from './common/date.helper';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-calendar',
@@ -19,6 +20,7 @@ import { getDate, isTodayDate, getDateParams } from './common/date.helper';
     MatDatepickerModule,
     DatePipe,
     MatButtonModule,
+    MatIconModule,
   ],
   providers: [
     provideNativeDateAdapter(),
@@ -34,8 +36,13 @@ export class CalendarComponent {
   private readonly appointmentService = inject(AppointmentService);
   readonly title = 'Calendar app';
   readonly calendar = viewChild<MatCalendar<Date>>('calendar');
-  readonly selected = model<Date | null>(null);
-  readonly appointmmentAction$ = new Subject<void>();
+  readonly selected = model<Date>();
+  readonly appointmentAction$ = new Subject<void>();
+  readonly clearAction$ = new Subject<void>();
+  readonly hasAppoinments = computed<boolean>(() => {
+    const state = this.calendarStateService.signal();
+    return Object.keys(state()).filter((key: keyof CalendarState) => key !== 'dateParams').length > 0;
+  });
 
   constructor() {
     effect(() => {
@@ -48,11 +55,12 @@ export class CalendarComponent {
 
   ngOnInit(): void {
     this.handleAppointmentAction();
+    this.handleClearAction();
   }
 
   dateChanged(date: Date): void {
     let commands;
-    if (isTodayDate(this.selected())) {
+    if (isTodayDate(this.selected()!)) {
       commands = [RoutesConfig.calendar.calendar, RoutesConfig.calendar.today];
     } else {
       const { year, month, day } = getDateParams(date);
@@ -69,7 +77,7 @@ export class CalendarComponent {
   }
 
   private handleAppointmentAction(): void {
-    this.appointmmentAction$
+    this.appointmentAction$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap(() => {
@@ -78,9 +86,19 @@ export class CalendarComponent {
           return this.appointmentService.create<AppointmentCreateData, Appointment|null>({ date });
         }),
         filter(Boolean),
-        tap(result => this.appointmentService.updateState(AppointmentAction.CREATE, result)),
+        switchMap((result) => this.appointmentService.updateState(AppointmentAction.CREATE, result)),
+        tap(() => this.appointmentService.refresh$.next()),
       )
       .subscribe();
   }
 
+  private handleClearAction(): void {
+    this.clearAction$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.appointmentService.clearAppointments()),
+        tap(() => this.appointmentService.refresh$.next()),
+      )
+      .subscribe();
+  }
 }

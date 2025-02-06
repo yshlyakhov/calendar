@@ -2,11 +2,11 @@ import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, model } from '@angular/core';
 import { AppointmentPositionDirective } from './common/appointment-position.directive';
 import { AppointmentService } from './common/appointment.service';
-import { filter, Subject, switchMap, tap } from 'rxjs';
+import { concatMap, filter, Subject, switchMap, tap } from 'rxjs';
 import { Appointment, AppointmentAction } from '../common/calendar.models';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
-import { updateDateByMinutes } from '../common/date.helper';
+import { coerceAppointmentDate, updateDateByMinutes } from '../common/date.helper';
 
 @Component({
   selector: 'app-appointment',
@@ -38,9 +38,11 @@ export class AppointmentComponent {
   private readonly appointmentService = inject(AppointmentService);
   readonly dragging = model<boolean>();
   readonly appointment = input.required<Appointment>();
+  readonly appointmentUpdateAction$ = new Subject<Appointment>();
   readonly appointmentAction$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.handleAppointmentUpdateAction();
     this.handleAppointmentAction();
   }
 
@@ -60,13 +62,13 @@ export class AppointmentComponent {
   }
 
   handleDragEnded(event: CdkDragEnd) {
-    const { startTime, endTime } = this.appointment();
+    const { startTime, endTime } = coerceAppointmentDate(this.appointment());
     const cdkDrag = event.source._dragRef;
     const targetTopPosition = cdkDrag.getFreeDragPosition().y;
     const newAppointment = {
       ...this.appointment(),
-      startTime: updateDateByMinutes(startTime!, targetTopPosition),
-      endTime: updateDateByMinutes(endTime!, targetTopPosition),
+      startTime: updateDateByMinutes(startTime, targetTopPosition),
+      endTime: updateDateByMinutes(endTime, targetTopPosition),
     };
 
     // reset drag drop if event overlaps with other(s)
@@ -74,8 +76,18 @@ export class AppointmentComponent {
       event.source._dragRef.reset();
     } else {
     // update appointment
-      this.appointmentService.updateState(AppointmentAction.EDIT, newAppointment)
+      this.appointmentUpdateAction$.next(newAppointment);
     }
+  }
+
+  private handleAppointmentUpdateAction(): void {
+    this.appointmentUpdateAction$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        concatMap((result) => this.appointmentService.updateState(AppointmentAction.EDIT, result)),
+        tap(() => this.appointmentService.refresh$.next()),
+      )
+      .subscribe();
   }
 
   private handleAppointmentAction(): void {
@@ -87,15 +99,15 @@ export class AppointmentComponent {
         switchMap((action) => {
           switch (action) {
             case AppointmentAction.DELETE:
-              return this.appointmentService.delete(this.appointment());
+              return this.appointmentService.delete(this.appointment())
+                .pipe(tap(() => this.appointmentService.refresh$.next()));
             case AppointmentAction.EDIT:
               return this.appointmentService.edit(this.appointment());
           }
         }),
         filter(Boolean),
-        tap((result: Appointment) => {
-          this.appointmentService.updateState(AppointmentAction.EDIT, result);
-        }),
+        switchMap((result) => this.appointmentService.updateState(AppointmentAction.EDIT, result)),
+        tap(() => this.appointmentService.refresh$.next()),
       )
       .subscribe();
   }

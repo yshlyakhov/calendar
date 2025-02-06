@@ -2,11 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AppointmentCreateModalComponent } from '@pages/calendar/appointment/appointment-create-modal/appointment-create-modal.component';
 import { CalendarStateService } from '@pages/calendar/common/calendar-state.service';
-import { Appointment, AppointmentAction } from '@pages/calendar/common/calendar.models';
-import { getDateHash, getDateParams } from '@pages/calendar/common/date.helper';
-import { Observable, of } from 'rxjs';
+import { Appointment, AppointmentAction, DateParams } from '@pages/calendar/common/calendar.models';
+import { coerceAppointmentDate, getDateHash, getDateParams } from '@pages/calendar/common/date.helper';
+import { Observable, Subject } from 'rxjs';
 import { AppointmentViewModalComponent } from '../appointment-view-modal/appointment-view-modal.component';
 import { AppointmentEditModalComponent } from '../appointment-edit-modal/appointment-edit-modal.component';
+import { CalendarApiService } from '@pages/calendar/common/calendar-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,8 @@ import { AppointmentEditModalComponent } from '../appointment-edit-modal/appoint
 export class AppointmentService {
   private readonly dialog = inject(MatDialog);
   private readonly calendarStateService = inject(CalendarStateService);
+  private readonly calendarApiService = inject(CalendarApiService);
+  readonly refresh$ = new Subject<void>;
 
   create<D, R>(data?: D): Observable<R> {
     return this.dialog.open(AppointmentCreateModalComponent, { data }).afterClosed();
@@ -28,12 +31,19 @@ export class AppointmentService {
   }
 
   delete(data: Appointment): Observable<null> {
-    this.updateState(AppointmentAction.DELETE, data);
-    return of(null);
+    return this.updateState(AppointmentAction.DELETE, data);
   }
 
-  updateState(action: AppointmentAction, data: Appointment): void {
-    const key = getDateHash(getDateParams(data.date!));
+  getAppointmentsByHash(dateParams: DateParams): Observable<Appointment[]> {
+    return this.calendarApiService.get(dateParams);
+  }
+
+  clearAppointments(): Observable<null> {
+    return this.calendarApiService.clear();
+  }
+
+  updateState(action: AppointmentAction, data: Appointment): Observable<null> {
+    const key = getDateHash(getDateParams(data.date));
     let appointments = this.calendarStateService.select<Appointment[]>(key) || [];
     data.lastModified = Date.now();
 
@@ -56,20 +66,24 @@ export class AppointmentService {
         break;
     }
     this.calendarStateService.update(key, appointments);
+    return this.calendarApiService.save(key, appointments);
   }
 
-  checkTimeOverlaping({ date, startTime, endTime, id }: Partial<Appointment>): boolean {
-    const key = getDateHash(getDateParams(date!));
+  checkTimeOverlaping(appointment: Appointment): boolean {
+    const { date, startTime, endTime } = coerceAppointmentDate(appointment);
+    const key = getDateHash(getDateParams(date));
     let appointments = this.calendarStateService.select<Appointment[]>(key) || [];
 
     if (appointments.length > 0) {
-      const overlaps = appointments.filter(
-        item => id !== item.id && (
-          startTime! > item.startTime! && startTime! < item.endTime!
-          || endTime! > item.startTime! && endTime! < item.endTime!
-          || startTime! <= item.startTime! && startTime! <= item.endTime! && endTime! >= item.startTime! && endTime! >= item.endTime!
-        )
-      ).length;
+      const overlaps = appointments.filter(item => {
+        const { startTime: start, endTime: end } = coerceAppointmentDate(item);
+        return appointment.id !== item.id
+          && (
+            startTime > start && startTime < end ||
+            endTime > start && endTime < end ||
+            startTime <= start && startTime <= end && endTime >= start && endTime >= end
+          )
+      }).length;
 
       return overlaps > 0;
     }

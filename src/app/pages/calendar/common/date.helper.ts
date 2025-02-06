@@ -1,4 +1,4 @@
-import { AppointmentDate, DateParams } from './calendar.models';
+import { Appointment, AppointmentDate, DateParams } from './calendar.models';
 
 export const lastDateOfMonth = (year: number, month: number): number => new Date(year, month, 0).getDate();
 export const HOUR = 60 * 60 * 1000;
@@ -19,25 +19,27 @@ export const getDate = ({ year, month, day }: DateParams): Date => {
   return new Date(year, month - 1, day);
 }
 
-export const getDateParams = (date = new Date()): DateParams => {
+export const getDateParams = (date: Date): DateParams => {
+  date = new Date(date);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
   return { year, month, day };
 }
 
-export const isTodayDate = (date: Date | null): boolean => {
+export const isTodayDate = (date: Date): boolean => {
   if (!date) {
     return false;
   }
-  return new Date().setHours(0,0,0,0) === date.setHours(0,0,0,0);
+  return new Date().setHours(0,0,0,0) === new Date(date).setHours(0,0,0,0);
 }
 
 export const getDateHash = ({ year, month, day }: DateParams): string => {
   return isTodayDate(new Date(year, month - 1, day)) ? `today` : `${year}-${month}-${day}`;
 }
 
-export const getAppointmentDate = (date = new Date(), timeslot: number = -1): AppointmentDate => {
+export const getAppointmentDate = (date: Date, timeslot: number = -1): AppointmentDate => {
+  date = new Date(date);
   date.setHours(0,0,0,0);
   const startTime = new Date(date);
   const endTime = new Date(date);
@@ -52,16 +54,26 @@ export const getAppointmentDate = (date = new Date(), timeslot: number = -1): Ap
 }
 
 export const getMinutesOffset = (date: Date): number => {
-  return (date.getTime() - new Date(date).setHours(0,0,0,0)) / MINUTE;
+  return (new Date(date).getTime() - new Date(date).setHours(0,0,0,0)) / MINUTE;
 }
 
 export const updateDateByMinutes = (date: Date, delta: number = 0): Date => {
-  const result = new Date(date);
-  return new Date(result.setMinutes(date.getMinutes() + delta, 0, 0));
+  date = new Date(date);
+  date.setMinutes(date.getMinutes() + delta, 0, 0)
+  return date;
 }
 
 export const updateDateByTime = (date: Date, time: Date): Date => {
-  const result = new Date(date);
-  result.setHours(time.getHours(), time.getMinutes());
-  return new Date(result);
+  date = new Date(date);
+  time = new Date(time);
+  date.setHours(time.getHours(), time.getMinutes());
+  return date;
+}
+
+export const coerceAppointmentDate = ({ date, startTime, endTime }: Appointment): AppointmentDate => {
+  return ({
+    date: new Date(date),
+    startTime: new Date(startTime),
+    endTime: new Date(endTime,)
+  });
 }

@@ -30,7 +30,7 @@ export class NotificationService {
           tap(() => {
             const upcomingAppointments = this.getUpcomingAppointments();
             if (upcomingAppointments?.length) {
-              upcomingAppointments.forEach(({ title, startTime }) => new Notification(`${title || '(No title)'}: starts at ${formatDate(startTime!, 'shortTime', this.locale)}`));
+              upcomingAppointments.forEach(({ title, startTime }) => new Notification(`${title || '(No title)'}: starts at ${formatDate(startTime, 'shortTime', this.locale)}`));
             }
           })
         )
@@ -41,7 +41,7 @@ export class NotificationService {
       const todayAppointments = this.calendarStateService.select<Appointment[]>('today');
       if (todayAppointments?.length > 0) {
         return todayAppointments.filter(({ startTime }) => {
-          const time = (startTime!.getTime() - Date.now()) / MINUTE;
+          const time = (new Date(startTime).getTime() - Date.now()) / MINUTE;
           return time > 1 && time <= 15;
         });
       }

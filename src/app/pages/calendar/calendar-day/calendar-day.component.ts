@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, Signal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { RoutesConfig } from '@configs';
 import { URL_SERVICE } from '@shared/services/url.service';
 import { DatePipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { filter, Subject, switchMap, tap } from 'rxjs';
+import { catchError, filter, merge, Observable, of, Subject, switchMap, tap, throwError } from 'rxjs';
 import { AppointmentComponent } from '../appointment/appointment.component';
 import { AppointmentService } from '../appointment/common/appointment.service';
 import { CalendarStateService } from '../common/calendar-state.service';
@@ -32,15 +32,19 @@ export class CalendarDayComponent {
   private readonly calendarPageDataService = inject(CalendarPageDataService);
   private readonly appointmentService = inject(AppointmentService);
 
-  selectedDate = toSignal(this.calendarPageDataService.selectedDate$);
-  isToday = computed(() => isTodayDate(this.selectedDate()!));
+  private readonly appointments$: Observable<Appointment[]> = this.appointmentService.refresh$
+    .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      switchMap(() => this.appointmentService.getAppointmentsByHash(this.calendarStateService.select<DateParams>('dateParams'))),
+      tap(() => this.cdr.markForCheck()),
+      catchError(() => throwError(() => of([]))),
+    );
+  readonly selectedDate = toSignal(this.calendarPageDataService.selectedDate$);
+  readonly appointments = toSignal(merge(this.calendarPageDataService.appointments$, this.appointments$));
+
+  readonly isToday = computed(() => isTodayDate(this.selectedDate()!));
   readonly daySchedule = signal(DAY_SCHEDULE);
   readonly appointmentAction$ = new Subject<number>();
-  readonly appointments: Signal<Appointment[]> = computed(() => {
-    const state = this.calendarStateService.signal();
-    this.cdr.markForCheck();
-    return state()[this.calendarStateService.getDateHash()] || [];
-  });
 
   ngOnInit(): void {
     this.coerceUrl();
@@ -69,7 +73,8 @@ export class CalendarDayComponent {
           return this.appointmentService.create<AppointmentCreateData, Appointment|null>({ date, timeslot });
         }),
         filter(Boolean),
-        tap((result) => this.appointmentService.updateState(AppointmentAction.CREATE, result)),
+        switchMap((result) => this.appointmentService.updateState(AppointmentAction.CREATE, result)),
+        tap(() => this.appointmentService.refresh$.next()),
       )
       .subscribe();
   }

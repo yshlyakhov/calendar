@@ -1,8 +1,10 @@
+@let config = appointmentConfig();
+
 <form [formGroup]="form">
-  <mat-form-field hintLabel="Max 50 characters">
+  <mat-form-field hintLabel="Max {{ config.title.maxLength }} characters">
     <mat-label>Title</mat-label>
-    <input matInput formControlName="title" maxlength="50">
-    <mat-hint align="end">{{ form.get('title')?.value?.length }}/50</mat-hint>
+    <input matInput formControlName="title" [attr.maxlength]="config.title.maxLength">
+    <mat-hint align="end">{{ form.get('title')?.value?.length }}/{{ config.title.maxLength }}</mat-hint>
   </mat-form-field>
 
   <div class="date-container">
@@ -44,9 +46,9 @@
     <mat-error>Appointment overlaps with existing, please change date and/or time</mat-error>
   }
 
-  <mat-form-field hintLabel="Max 250 characters">
+  <mat-form-field hintLabel="Max {{ config.description.maxLength }} characters">
     <mat-label>Description</mat-label>
-    <textarea matInput formControlName="description" maxlength="250"></textarea>
-    <mat-hint align="end">{{ form.get('description')?.value?.length }}/250</mat-hint>
+    <textarea matInput formControlName="description" [attr.maxlength]="config.description.maxLength"></textarea>
+    <mat-hint align="end">{{ form.get('description')?.value?.length }}/{{ config.description.maxLength }}</mat-hint>
   </mat-form-field>
 </form>

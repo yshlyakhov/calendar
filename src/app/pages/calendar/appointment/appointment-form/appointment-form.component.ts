@@ -7,16 +7,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MAT_TIMEPICKER_CONFIG, MatTimepickerModule } from '@angular/material/timepicker';
 import { debounceTime, map, timer } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Appointment, AppointmentAction, AppointmentCreateData } from '@pages/calendar/common/calendar.models';
+import { Appointment, APPOINTMENT_CONFIG, AppointmentAction, AppointmentCreateData } from '@pages/calendar/common/calendar.models';
 import { AppointmentService } from '../common/appointment.service';
-import { updateDateByTime } from '@pages/calendar/common/date.helper';
+import { coerceAppointmentDate, updateDateByTime } from '@pages/calendar/common/date.helper';
 
 type AppointmentFormType = {
   [K in keyof Appointment]: FormControl<Appointment[K]>;
 }
 
 const timeRangeValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
-  const { startTime, endTime } = group.value;
+  const { startTime, endTime } = coerceAppointmentDate(group.value);
   const errors = startTime && endTime && (startTime >= endTime) ? { timeRange: true } : null;
   if (group.get('startTime')?.valid || group.get('startTime')?.hasError('timeRange')) {
     group.get('startTime')?.setErrors(errors);
@@ -72,6 +72,7 @@ export class AppointmentFormComponent {
   readonly data = input<AppointmentCreateData | Appointment>();
   readonly formInvalid = model<boolean>();
   readonly formValue = model<Appointment>();
+  readonly appointmentConfig = signal(APPOINTMENT_CONFIG);
 
   ngOnInit(): void {
     this.createForm();
@@ -84,10 +85,11 @@ export class AppointmentFormComponent {
       {
         id: ['', { validators: [Validators.required] }],
         title: [''],
-        date: [this.initialDate, { validators: [Validators.required] }],
-        startTime: [this.initialDate, { validators: [Validators.required] }],
-        endTime: [this.initialDate, { validators: [Validators.required] }],
+        date: [new Date(), { validators: [Validators.required] }],
+        startTime: [new Date(),{ validators: [Validators.required] }],
+        endTime: [new Date(),{ validators: [Validators.required] }],
         description: [''],
+        lastModified: [Date.now()],
       },
       {
         validators: [timeRangeValidator],
@@ -106,7 +108,7 @@ export class AppointmentFormComponent {
   }
 
   private handleForm(): void {
-    this.form.get('date')!.valueChanges
+    this.form.get('date')?.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         debounceTime(400),
@@ -115,13 +117,13 @@ export class AppointmentFormComponent {
         this.dateError.set(this.getErrorMessage(this.form.get('date')!));
 
         // sync date and times
-        if (!this.form.get('date')!.errors && !this.form.get('startTime')!.errors && !this.form.get('endTime')!.errors ) {
-          this.form.get('startTime')!.setValue(updateDateByTime(date!, this.form.get('startTime')!.value!));
-          this.form.get('endTime')!.setValue(updateDateByTime(date!, this.form.get('endTime')!.value!));
+        if (!this.form.get('date')?.errors && !this.form.get('startTime')?.errors && !this.form.get('endTime')?.errors ) {
+          this.form.get('startTime')?.setValue(updateDateByTime(date!, this.form.get('startTime')?.value!));
+          this.form.get('endTime')?.setValue(updateDateByTime(date!, this.form.get('endTime')?.value!));
         }
       });
 
-    this.form.get('startTime')!.valueChanges
+    this.form.get('startTime')?.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         debounceTime(400),
@@ -130,7 +132,7 @@ export class AppointmentFormComponent {
         this.startTimeError.set(this.getErrorMessage(this.form.get('startTime')!));
       });
 
-    this.form.get('endTime')!.valueChanges
+    this.form.get('endTime')?.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         debounceTime(400),

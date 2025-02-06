@@ -12,7 +12,7 @@ import { NotificationService } from '@shared/services/notification.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  private readonly calendarStateService = inject(NotificationService);
+  private readonly notificationService = inject(NotificationService);
 
   // track change detection
   // ngAfterViewChecked(): void {
