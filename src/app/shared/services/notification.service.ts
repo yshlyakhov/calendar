@@ -2,7 +2,7 @@ import { formatDate } from '@angular/common';
 import { inject, Injectable, LOCALE_ID } from '@angular/core';
 import { CalendarStateService } from '@pages/calendar/common/calendar-state.service';
 import { Appointment } from '@pages/calendar/common/calendar.models';
-import { MINUTE } from '@pages/calendar/common/date.helper';
+import { getDateHash, getDateParams, MINUTE } from '@pages/calendar/common/date.helper';
 import { interval, tap } from 'rxjs';
 
 @Injectable({
@@ -38,7 +38,8 @@ export class NotificationService {
     }
 
     private getUpcomingAppointments(): Appointment[]|null {
-      const todayAppointments = this.calendarStateService.select<Appointment[]>('today');
+      const key = getDateHash(getDateParams(new Date()));
+      const todayAppointments = this.calendarStateService.select<Appointment[]>(key);
       if (todayAppointments?.length > 0) {
         return todayAppointments.filter(({ startTime }) => {
           const time = (new Date(startTime).getTime() - Date.now()) / MINUTE;

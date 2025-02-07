@@ -1,6 +1,6 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { CalendarState } from './calendar.models';
-import { getDateHash } from './date.helper';
+import { getDateHash, getDateParams } from './date.helper';
 
 const DEFAUTL_CALENDRA_STATE: CalendarState = {
   dateParams: null,
@@ -34,7 +34,7 @@ export class CalendarStateService {
 
   getDateHash(): string {
     const params = this.get().dateParams;
-    return params ? getDateHash(params) : 'today';
+    return params ? getDateHash(params) : getDateHash(getDateParams(new Date));
   }
 
   removeAppointmentById(id: string): void {

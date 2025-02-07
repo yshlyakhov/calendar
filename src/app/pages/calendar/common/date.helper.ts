@@ -35,7 +35,7 @@ export const isTodayDate = (date: Date): boolean => {
 }
 
 export const getDateHash = ({ year, month, day }: DateParams): string => {
-  return isTodayDate(new Date(year, month - 1, day)) ? `today` : `${year}-${month}-${day}`;
+  return `${year}-${month}-${day}`;
 }
 
 export const getAppointmentDate = (date: Date, timeslot: number = -1): AppointmentDate => {

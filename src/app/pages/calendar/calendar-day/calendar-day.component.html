@@ -1,8 +1,13 @@
 @let date = selectedDate();
 
-<div class="current-date" [class.today]="isToday()">
-  <div class="weekday">{{ date | date: 'EEE' }}</div>
-  <div class="day">{{ date | date: 'd' }}</div>
+<div class="schedule-header">
+  <div class="current-date" [class.today]="isToday()">
+    <div class="weekday">{{ date | date: 'EEE' }}</div>
+    <div class="day">{{ date | date: 'd' }}</div>
+  </div>
+  @if (count()) {
+    <div class="counter">You have {{ count() }} appointment{{ count() > 1 ? 's' : '' }}</div>
+  }
 </div>
 
 <div class="schedule-container">

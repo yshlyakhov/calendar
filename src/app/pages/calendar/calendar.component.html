@@ -3,8 +3,8 @@
 <div class="subheader">
   <div class="actions-container">
     <button mat-fab extended (click)="appointmentAction$.next()"><mat-icon>calendar_today</mat-icon>Create</button>
-    @if (hasAppoinments()) {
-      <button mat-fab extended (click)="clearAction$.next()"><mat-icon>delete</mat-icon>Delete all</button>
+    @if (count()) {
+      <button mat-fab extended (click)="clearAction$.next()"><mat-icon>delete</mat-icon>Delete all ({{count()}})</button>
     }
     <button mat-stroked-button (click)="setToday()">Today</button>
   </div>

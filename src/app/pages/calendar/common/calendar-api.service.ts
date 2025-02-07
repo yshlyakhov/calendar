@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, switchMap, timer } from 'rxjs';
 import { Appointment, CalendarState, Data, DateParams } from './calendar.models';
-import { coerceAppointmentDate, getDateHash } from './date.helper';
+import { coerceAppointmentDate, getDateHash, getDateParams } from './date.helper';
 import { CalendarStateService } from './calendar-state.service';
 
 const generateRandomNumber = (min: number = 0, max: number = 1): number => Math.floor(Math.random() * (max - min + 1) + min);
@@ -9,7 +9,7 @@ const CALENDAR_DATA_KEY = 'calendarData';
 
 /**
  * DASIC API SERVICE
- * get / save by data chuck just to keep sync app state and storage state
+ * get / save by data chunk just to keep sync app state and storage state
  */
 @Injectable({
   providedIn: 'root',
@@ -27,7 +27,7 @@ export class CalendarApiService {
     return timer(generateRandomNumber(100, 300)) // emulate network delay
       .pipe(
         switchMap(() => {
-          const hash = dateParams ? getDateHash(dateParams) : `today`;
+          const hash = dateParams ? getDateHash(dateParams) : getDateHash(getDateParams(new Date));
           const data: Appointment[] = JSON.parse(localStorage.getItem(CALENDAR_DATA_KEY)!)?.[hash] || [];
           return of(data);
         }),

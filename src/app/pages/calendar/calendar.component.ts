@@ -39,9 +39,14 @@ export class CalendarComponent {
   readonly selected = model<Date>();
   readonly appointmentAction$ = new Subject<void>();
   readonly clearAction$ = new Subject<void>();
-  readonly hasAppoinments = computed<boolean>(() => {
+  readonly count = computed<number>(() => {
     const state = this.calendarStateService.signal();
-    return Object.keys(state()).filter((key: keyof CalendarState) => key !== 'dateParams').length > 0;
+    return Object.keys(state()).reduce((acc, key: keyof CalendarState) => {
+      if (key !== 'dateParams') {
+        acc += state()[key]?.length || 0;
+      }
+      return acc;
+    }, 0);
   });
 
   constructor() {

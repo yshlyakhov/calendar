@@ -31,7 +31,6 @@ export class CalendarDayComponent {
   private readonly calendarStateService = inject(CalendarStateService);
   private readonly calendarPageDataService = inject(CalendarPageDataService);
   private readonly appointmentService = inject(AppointmentService);
-
   private readonly appointments$: Observable<Appointment[]> = this.appointmentService.refresh$
     .pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -41,7 +40,7 @@ export class CalendarDayComponent {
     );
   readonly selectedDate = toSignal(this.calendarPageDataService.selectedDate$);
   readonly appointments = toSignal(merge(this.calendarPageDataService.appointments$, this.appointments$));
-
+  readonly count = computed<number>(() => this.appointments()?.length || 0);
   readonly isToday = computed(() => isTodayDate(this.selectedDate()!));
   readonly daySchedule = signal(DAY_SCHEDULE);
   readonly appointmentAction$ = new Subject<number>();
