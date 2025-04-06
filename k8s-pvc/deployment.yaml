@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fileshare
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fileshare
+  template:
+    metadata:
+      labels:
+        app: fileshare
+    spec:
+      initContainers:
+      - image: busybox
+        name: mount-permissions-fix
+        command: ["sh", "-c", "chmod 777 /data"]
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      containers:
+      - image: mrshlyakhov/calendar
+        name: calendar
+        resources:
+          limits:
+            memory: 128Mi
+            cpu: 100m
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/conf.d
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: config
+        configMap:
+          name: fileshare
+      - name: data
+        persistentVolumeClaim:
+          claimName: fileshare

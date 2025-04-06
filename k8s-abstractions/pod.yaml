@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: calendar-pod
+  # labels:
+  #   app: calendar
+spec:
+  containers:
+  - name: calendar
+    image: mrshlyakhov/calendar
+    ports:
+      - containerPort: 80
+ 

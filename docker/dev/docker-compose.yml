@@ -1,0 +1,13 @@
+name: calendar
+services:
+  web:
+    build:
+      context: ${PWD}
+      dockerfile: docker/dev/Dockerfile
+    container_name: web
+    # image: calendar:dev
+    restart: always
+    ports:
+      - 7001:4200
+    volumes:
+    - $PWD/src:/app/src

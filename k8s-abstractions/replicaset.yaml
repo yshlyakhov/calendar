@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: calendar
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: calendar
+  template:
+    metadata:
+      labels:
+        app: calendar
+    spec:
+      containers:
+      - name: calendar
+        image: mrshlyakhov/calendar
+        ports:
+        - containerPort: 80

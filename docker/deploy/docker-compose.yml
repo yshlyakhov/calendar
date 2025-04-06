@@ -1,0 +1,12 @@
+services:
+  web:
+    build: .
+    container_name: calendar
+    restart: always
+    ports:
+      - 7001:80
+    # develop:
+    #   watch:
+    #     - action: rebuild
+    #       path: .
+    #       target: /usr/share/nginx/html
