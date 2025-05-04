@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *" # minute(0-59) / hour(0-23) / day of the months(1-31) / month(1-12) / day of the week(0-6)
+  concurrencyPolicy: Forbid # best practice as well as usage the next 3 fields
+  successfulJobHistoryLimit: 3 # keep last 3 succesfull jobs and related pods # 3 is default value
+  failedJobHistoryLimit: 1 # keep last 1 failed job and related pod # 1 is default value
+  startingDeadlineSeconds: 30 # allow to start job within this gap otherwise skip job till next schedule time # best practice more than 10s and less the cron period i e in our example less than 60s
+  suspend: false # may suspend cron by editing cron with -o yaml and set field to true
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          backoffLimit: 2
+          activeDeadlineSeconds: 60
+          containers:
+          - name: hello
+            image: busybox:1.28
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: Never

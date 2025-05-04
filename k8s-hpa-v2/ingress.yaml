@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hpa-v2-test
+spec:
+  rules:
+  - host: hpa-v2-test.<External Ingress IP>.nip.io #<External Ingress IP>
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: hpa-v2-test
+            port:
+              number: 80

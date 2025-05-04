@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: my-daemon
+  namespace: default
+  labels:
+    app: my-daemon
+spec:
+  selector:
+    matchLabels:
+      app: my-daemon
+  template:
+    metadata:
+      labels:
+        app: my-daemon
+    spec:
+      tolerations:
+      # these tolerations are to have the daemonset runnable on control plane nodes
+      # remove them if your control plane nodes should not run pods
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: busybox
+        image: busybox
+        command:
+          - sh
+          - -c
+          - "while true; do echo Hohoho; sleep 1; done;"

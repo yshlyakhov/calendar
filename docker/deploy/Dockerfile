@@ -1,6 +1,7 @@
 FROM node:20.18.3-bookworm-slim AS build
 
 WORKDIR /app
+RUN npm cache clean --force
 
 COPY . .
 

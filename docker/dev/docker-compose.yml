@@ -5,7 +5,7 @@ services:
       context: ${PWD}
       dockerfile: docker/dev/Dockerfile
     container_name: web
-    # image: calendar:dev
+    image: calendar:dev
     restart: always
     ports:
       - 7001:4200

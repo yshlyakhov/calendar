@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-env
+data:
+  dbhost: postgresql
+  DEBUG: "false"

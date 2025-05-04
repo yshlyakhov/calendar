@@ -1,17 +1,7 @@
 # Calendar
-
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.3.
 
-## Development server
-
-To start a local development server, run:
-
-```bash
-npm start
-```
-
 ## This app can do next things:
-
 1) Create single appointment via button Create (top left corner) or by clicking on empty day scheduler
 2) By clicking on appointment there available view mode with actions - Edit / Delete
 3) Drag and drop 
@@ -19,3 +9,24 @@ npm start
 5) API emulation with delay (localStorage is used)
 6) State restore after reloading
 7) Delete all appointments via Delete all button
+8) Send notifications about upcoming appointments
+
+## Development server
+
+To start a local development server, run:
+
+```bash
+npm start
+
+OR
+
+docker-compose -f docker/dev/docker-compose.yml up --watch
+```
+
+## Production
+
+To build prod image
+
+```bash
+docker build -t mrshlyakhov/calendar . -f docker/deploy/Dockerfile
+```
